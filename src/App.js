@@ -1,13 +1,13 @@
-import './App.css';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { Container } from '@mui/system';
-import ServiceTable from './ServiceTable';
+import "./App.css";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { Container } from "@mui/system";
+import ServiceTable from "./ServiceTable";
 
 function App() {
   const darkTheme = createTheme({
     palette: {
-      mode: 'dark',
+      mode: "dark",
     },
   });
 
@@ -15,10 +15,10 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Container>
-        <h1 className='header'>Your Subs</h1>
+        <h1 className="header">Your Subs</h1>
       </Container>
       <Container>
-        <ServiceTable/>
+        <ServiceTable />
       </Container>
     </ThemeProvider>
   );
