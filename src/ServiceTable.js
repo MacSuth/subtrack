@@ -1,25 +1,30 @@
 import { useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, gridColumnGroupsLookupSelector } from "@mui/x-data-grid";
 import { Box } from "@mui/system";
 import { Button, Modal, TextField } from "@mui/material";
 
 export default function ServiceTable(props) {
-  const defaultDate = new Date().toLocaleDateString();
-
   // const rows = [
-  //   { id: 1, service: "Netflix", monthlyCost: 15, startDate: defaultDate },
-  //   { id: 2, service: "Amazon Prime", monthlyCost: 20, startDate: defaultDate },
-  //   { id: 3, service: "Hulu", monthlyCost: 10, startDate: defaultDate },
+  //   { service: "Netflix", monthlyCost: 15, startDate: defaultDate },
+  //   { service: "Amazon Prime", monthlyCost: 20, startDate: defaultDate },
+  //   { service: "Hulu", monthlyCost: 10, startDate: defaultDate },
   // ];
 
+  const [rowData, setRowData] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [newServiceName, setNewServiceName] = useState("");
+  const [newServiceCost, setNewServiceCost] = useState(0);
+
   if (localStorage.getItem("rows")) {
-    setData(localStorage.getItem("rows"));
+    setRowData(localStorage.getItem("rows"));
   }
 
-  const [data, setData] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
-
   const columns = [
+    {
+      field: 'id',
+      headerName: 'ID',
+      width: 90
+    },
     {
       field: "service",
       headerName: "Service",
@@ -41,7 +46,7 @@ export default function ServiceTable(props) {
       flex: 1,
       headerAlign: "center",
       type: "date",
-      editable: true,
+      editable: false,
     },
     {
       field: "totalCost",
@@ -50,8 +55,11 @@ export default function ServiceTable(props) {
         "This column totals your expenditures for the given service.",
       sortable: false,
       headerAlign: "center",
-      valueGetter: (params) =>
-        `${params.row.firstName || ""} ${params.row.lastName || ""}`,
+      valueGetter: (params) => {
+        let diffInTime = Date.now() - new Date(params.row.startDate).getTime()
+        let monthsSubbed = Math.round(diffInTime / (1000 * 3600 * 24) / 30)
+        return params.row.monthlyCost * monthsSubbed
+      }
     },
   ];
 
@@ -77,12 +85,12 @@ export default function ServiceTable(props) {
   const handleOpen = () => setOpenModal(true);
   const handleClose = () => setOpenModal(false);
 
-  function removeService() {}
+  function removeService() { }
 
   return (
     <Box sx={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={data}
+        rows={rowData}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
@@ -108,6 +116,7 @@ export default function ServiceTable(props) {
           Remove Service
         </Button>
       </div>
+
       <Modal open={openModal} onClose={handleClose}>
         <Box sx={style}>
           <h1 className="header">New Subscription</h1>
@@ -123,6 +132,7 @@ export default function ServiceTable(props) {
               label="Service Name"
               variant="standard"
               required
+              onChange={(event) => setNewServiceName({ "name": event.target.value })}
             />
           </div>
           <div
@@ -137,6 +147,7 @@ export default function ServiceTable(props) {
               label="Service Cost"
               variant="standard"
               required
+              onChange={(event) => setNewServiceCost({ "cost": event.target.value })}
             />
           </div>
           <div
@@ -149,7 +160,10 @@ export default function ServiceTable(props) {
           >
             <Button
               onClick={() => {
-                console.log("Test");
+                let newID = Math.max(rowData.map(x => x.id)) + 1
+                let newRow = [...rowData, { "id": newID, "service": newServiceName.name, "monthlyCost": newServiceCost.cost, "startDate": new Date().toLocaleDateString() }]
+                setRowData(newRow)
+                handleClose()
               }}
               variant="contained"
               color="success"
