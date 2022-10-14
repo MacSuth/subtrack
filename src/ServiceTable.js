@@ -4,7 +4,6 @@ import { Box } from "@mui/system";
 import { Button, Modal, TextField } from "@mui/material";
 
 export default function ServiceTable(props) {
-
   const [rowData, setRowData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [newServiceName, setNewServiceName] = useState("");
@@ -17,9 +16,9 @@ export default function ServiceTable(props) {
 
   const columns = [
     {
-      field: 'id',
-      headerName: 'ID',
-      width: 90
+      field: "id",
+      headerName: "ID",
+      width: 90,
     },
     {
       field: "service",
@@ -42,7 +41,7 @@ export default function ServiceTable(props) {
       flex: 1,
       headerAlign: "center",
       type: "date",
-      editable: false,
+      editable: true,
     },
     {
       field: "totalCost",
@@ -52,10 +51,10 @@ export default function ServiceTable(props) {
       sortable: false,
       headerAlign: "center",
       valueGetter: (params) => {
-        let diffInTime = Date.now() - new Date(params.row.startDate).getTime()
-        let monthsSubbed = Math.round(diffInTime / (1000 * 3600 * 24) / 30)
-        return params.row.monthlyCost * (monthsSubbed + 1)
-      }
+        let diffInTime = Date.now() - new Date(params.row.startDate).getTime();
+        let monthsSubbed = Math.round(diffInTime / (1000 * 3600 * 24) / 30);
+        return params.row.monthlyCost * (monthsSubbed + 1);
+      },
     },
   ];
 
@@ -82,8 +81,9 @@ export default function ServiceTable(props) {
   const handleClose = () => setOpenModal(false);
 
   function removeService() {
-    // let rows = rowData
-    console.log(selectedRows)
+    let rows = rowData;
+    rows = rows.filter((row) => !selectedRows.includes(row.id));
+    setRowData(rows);
   }
 
   return (
@@ -97,9 +97,7 @@ export default function ServiceTable(props) {
         disableSelectionOnClick
         experimentalFeatures={{ newEditingApi: true }}
         onSelectionModelChange={(selectionModel) => {
-          // console.log('model', selectionModel)
-          setSelectedRows(selectionModel)
-          // console.log('rows', selectedRows)
+          setSelectedRows(selectionModel);
         }}
       />
       <div style={{ textAlign: "right", marginTop: "5px", width: "100%" }}>
@@ -136,7 +134,9 @@ export default function ServiceTable(props) {
               label="Service Name"
               variant="standard"
               required
-              onChange={(event) => setNewServiceName({ "name": event.target.value })}
+              onChange={(event) =>
+                setNewServiceName({ name: event.target.value })
+              }
             />
           </div>
           <div
@@ -151,7 +151,9 @@ export default function ServiceTable(props) {
               label="Service Cost"
               variant="standard"
               required
-              onChange={(event) => setNewServiceCost({ "cost": event.target.value })}
+              onChange={(event) =>
+                setNewServiceCost({ cost: event.target.value })
+              }
             />
           </div>
           <div
@@ -164,10 +166,18 @@ export default function ServiceTable(props) {
           >
             <Button
               onClick={() => {
-                let newID = Math.max(rowData.map(x => x.id)) + 1
-                let newRow = [...rowData, { "id": newID, "service": newServiceName.name, "monthlyCost": newServiceCost.cost, "startDate": new Date().toLocaleDateString() }]
-                setRowData(newRow)
-                handleClose()
+                let newID = Math.max(rowData.map((x) => x.id)) + 1;
+                let newRow = [
+                  ...rowData,
+                  {
+                    id: newID,
+                    service: newServiceName.name,
+                    monthlyCost: newServiceCost.cost,
+                    startDate: new Date().toLocaleDateString(),
+                  },
+                ];
+                setRowData(newRow);
+                handleClose();
               }}
               variant="contained"
               color="success"
