@@ -1,23 +1,19 @@
 import { useState } from "react";
-import { DataGrid, gridColumnGroupsLookupSelector } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { Box } from "@mui/system";
 import { Button, Modal, TextField } from "@mui/material";
 
 export default function ServiceTable(props) {
-  // const rows = [
-  //   { service: "Netflix", monthlyCost: 15, startDate: defaultDate },
-  //   { service: "Amazon Prime", monthlyCost: 20, startDate: defaultDate },
-  //   { service: "Hulu", monthlyCost: 10, startDate: defaultDate },
-  // ];
 
   const [rowData, setRowData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [newServiceName, setNewServiceName] = useState("");
   const [newServiceCost, setNewServiceCost] = useState(0);
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  if (localStorage.getItem("rows")) {
-    setRowData(localStorage.getItem("rows"));
-  }
+  // if (localStorage.getItem("rows")) {
+  //   setRowData(localStorage.getItem("rows"));
+  // }
 
   const columns = [
     {
@@ -58,7 +54,7 @@ export default function ServiceTable(props) {
       valueGetter: (params) => {
         let diffInTime = Date.now() - new Date(params.row.startDate).getTime()
         let monthsSubbed = Math.round(diffInTime / (1000 * 3600 * 24) / 30)
-        return params.row.monthlyCost * monthsSubbed
+        return params.row.monthlyCost * (monthsSubbed + 1)
       }
     },
   ];
@@ -85,7 +81,10 @@ export default function ServiceTable(props) {
   const handleOpen = () => setOpenModal(true);
   const handleClose = () => setOpenModal(false);
 
-  function removeService() { }
+  function removeService() {
+    // let rows = rowData
+    console.log(selectedRows)
+  }
 
   return (
     <Box sx={{ height: 400, width: "100%" }}>
@@ -97,6 +96,11 @@ export default function ServiceTable(props) {
         checkboxSelection
         disableSelectionOnClick
         experimentalFeatures={{ newEditingApi: true }}
+        onSelectionModelChange={(selectionModel) => {
+          // console.log('model', selectionModel)
+          setSelectedRows(selectionModel)
+          // console.log('rows', selectedRows)
+        }}
       />
       <div style={{ textAlign: "right", marginTop: "5px", width: "100%" }}>
         <Button
